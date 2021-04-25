@@ -126,3 +126,6 @@ dmypy.json
 
 #configuration file
 userconfig.py
+
+#db
+database.db
