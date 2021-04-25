@@ -1,6 +1,7 @@
 import sqlite3
 
 import config
+from config import tables
 
 
 def _create_string(o):
@@ -17,12 +18,13 @@ def create_connection():
 def initialize_database():
 	cursor = create_connection().cursor()
 
-	fields = []
-	for field_name in config.user_schema:
-		field = config.user_schema[field_name]
-		fields.append("%s %s %s" % (field_name, field['type'], field.get('options', '')))
+	for table in tables:
+		fields = []
+		for field_name in table['schema']:
+			field = table['schema'][field_name]
+			fields.append("%s %s %s" % (field_name, field['type'], field.get('options', '')))
 
-	cursor.execute("CREATE TABLE IF NOT EXISTS user (%s)" % ", ".join(fields))
+		cursor.execute("CREATE TABLE IF NOT EXISTS %s (%s)" % (table['name'], ", ".join(fields)))
 
 
 def get_user(id):
@@ -33,6 +35,24 @@ def create_user(fields: dict):
 	keys = list(fields)
 	return create_connection().cursor().execute(
 		'INSERT INTO user (%s) VALUES (%s)' % (
+			",".join(field_name for field_name in keys),
+			",".join(_create_string(fields[field_name]) for field_name in keys)
+		)
+	)
+
+def create_chat(fields: dict):
+	keys = list(fields)
+	return create_connection().cursor().execute(
+		'INSERT INTO chat (%s) VALUES (%s)' % (
+			",".join(field_name for field_name in keys),
+			",".join(_create_string(fields[field_name]) for field_name in keys)
+		)
+	)
+
+def create_user_chat(fields: dict):
+	keys = list(fields)
+	return create_connection().cursor().execute(
+		'INSERT INTO user_chat (%s) VALUES (%s)' % (
 			",".join(field_name for field_name in keys),
 			",".join(_create_string(fields[field_name]) for field_name in keys)
 		)

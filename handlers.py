@@ -34,3 +34,12 @@ def normal_message(bot, update):
 	reply = m.reply_text
 	print(m)
 	# Handle non-command text messages
+
+def conversation_message(bot, update):
+	m = bot.message
+	chat = m.chat
+	chat_id = chat.id
+	text = m.text
+	reply = m.reply_text
+	print(m)
+	# Handle non-command text messages
