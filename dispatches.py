@@ -2,23 +2,13 @@
 Handle registration.
 """
 
-from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, Filters
-
-from handlers import start, stop, normal_message, conversation_message
-
-MESSAGE = range(1)
+from telegram.ext import CommandHandler, MessageHandler, Filters
+from handlers import start, stop, normal_message, plus_message
 
 dispatches = [
 	CommandHandler('start', start),
 	CommandHandler('stop', stop),
 
-	MessageHandler(Filters.text, normal_message),
-
-	ConversationHandler(
-		entry_points=[CommandHandler('start', start)],
-        states={
-            MESSAGE: [MessageHandler(Filters.text, normal_message)],
-        },
-        fallbacks=[CommandHandler('stop', stop)]
-	)
+	MessageHandler(Filters.text & Filters.reply & Filters.regex(r'\+(.*)'), plus_message),
+	MessageHandler(Filters.text, normal_message)
 ]

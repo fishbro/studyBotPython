@@ -30,6 +30,26 @@ def initialize_database():
 def get_user(id):
 	return create_connection().cursor().execute("SELECT * FROM user WHERE user_id=%d" % id).fetchone()
 
+def get_chat(id):
+	return create_connection().cursor().execute("SELECT * FROM chat WHERE chat_id=%d" % id).fetchone()
+
+def get_user_chat(user_id, chat_id):
+	return create_connection().cursor().execute("SELECT * FROM user_chat WHERE user_id=%d AND chat_id=%d" % (user_id,chat_id)).fetchone()
+
+def get_user_fields(id, fields: list):
+	raw = create_connection().cursor().execute("SELECT %s FROM user WHERE user_id=%d" % (",".join(fields), id)).fetchone()
+	result = {}
+	for i in range(len(fields)):
+		result[fields[i]] = raw[i]
+	return result
+
+def get_user_chat_fields(user_id, chat_id, fields: list):
+	raw = create_connection().cursor().execute("SELECT %s FROM user_chat WHERE user_id=%d AND chat_id=%d" % (",".join(fields), user_id, chat_id)).fetchone()
+	result = {}
+	for i in range(len(fields)):
+		result[fields[i]] = raw[i]
+	return result
+
 
 def create_user(fields: dict):
 	keys = list(fields)
@@ -56,6 +76,11 @@ def create_user_chat(fields: dict):
 			",".join(field_name for field_name in keys),
 			",".join(_create_string(fields[field_name]) for field_name in keys)
 		)
+	)
+
+def modify_score(user_id, chat_id, score):
+	return create_connection().cursor().execute(
+		'UPDATE user_chat SET score=%d WHERE user_id=%d AND chat_id=%d' % (score, user_id, chat_id)
 	)
 
 

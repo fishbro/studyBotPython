@@ -2,23 +2,17 @@
 Handler functions to be dispatched.
 """
 
-from validators import is_registered, is_message_for_bot
-from database import create_user
+from validators import is_registered_user, is_message_for_bot
+from modules.user import registerUser
 import messages
+from modules.carma import carmaIncrease
 
 
 def start(bot, update):
+	registerUser(bot.message.from_user, bot.message.chat)
 	m = bot.message
-	# print(m.from_user)
-	# if not is_message_for_bot(m):
-	# 	return
 
-	print({'user_id': m.from_user.id, 'username': m.from_user.username})
-	if not is_registered(m.from_user):
-		m.reply_text(messages.START_MESSAGE)
-		create_user({'user_id': m.from_user.id, 'username': m.from_user.username})
-	else:
-		m.reply_text(messages.CONTINUE_MESSAGE)
+	m.reply_text(messages.CONTINUE_MESSAGE % m.from_user.username)
 
 
 def stop(bot, update):
@@ -27,19 +21,35 @@ def stop(bot, update):
 
 
 def normal_message(bot, update):
+	registerUser(bot.message.from_user, bot.message.chat)
 	m = bot.message
-	chat = m.chat
-	chat_id = chat.id
-	text = m.text
-	reply = m.reply_text
-	print(m)
-	# Handle non-command text messages
 
-def conversation_message(bot, update):
+	print('normal')
+
+	# chat = m.chat
+	# chat_id = chat.id
+	# text = m.text
+	# reply = m.reply_text
+	# print(m)
+	# # Handle non-command text messages
+
+def plus_message(bot, update):
+	registerUser(bot.message.from_user, bot.message.chat)
 	m = bot.message
-	chat = m.chat
-	chat_id = chat.id
-	text = m.text
-	reply = m.reply_text
-	print(m)
-	# Handle non-command text messages
+	from_id = m.reply_to_message.from_user.id
+	to_id = m.from_user.id
+	chat_id = m.chat.id
+
+	if from_id == to_id:
+		bot.message.reply_text(messages.PLUS_ERROR_YURSELF)
+		return False
+
+	new_score = carmaIncrease(to_id, chat_id)
+	bot.message.reply_text(messages.PLUS_MESSAGE % (m.from_user.username, m.reply_to_message.from_user.username, new_score))
+
+	# chat = m.chat
+	# chat_id = chat.id
+	# text = m.text
+	# reply = m.reply_text
+	# print(m)
+	# # Handle non-command text messages
